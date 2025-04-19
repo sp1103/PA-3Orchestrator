@@ -1,4 +1,3 @@
-
 services:
   r1:
     build: .
@@ -10,9 +9,48 @@ services:
     networks:
       net14:
         ipv4_address: 10.0.14.4
+      net10:
+        ipv4_address: 10.0.10.3
+      net16:
+        ipv4_address: 10.0.16.3
+  r2:
+    build: .
+    stdin_open: true
+    tty: true
+    cap_add:
+      - ALL
+    privileged: true
+    networks:
+      net10:
+        ipv4_address: 10.0.10.4
+      net11:
+        ipv4_address: 10.0.11.3
+  r3:
+    build: .
+    stdin_open: true
+    tty: true
+    cap_add:
+      - ALL
+    privileged: true
+    networks:
+      net11:
+        ipv4_address: 10.0.11.4
+      net17:
+        ipv4_address: 10.0.17.4
       net15:
         ipv4_address: 10.0.15.4
-
+  r4:
+    build: .
+    stdin_open: true
+    tty: true
+    cap_add:
+      - ALL
+    privileged: true
+    networks:
+      net16:
+        ipv4_address: 10.0.16.4
+      net17:
+        ipv4_address: 10.0.17.3
   ha:
     build: .
     stdin_open: true
@@ -23,7 +61,6 @@ services:
     networks:
       net14:
         ipv4_address: 10.0.14.3
-
   hb:
     build: .
     stdin_open: true
@@ -34,7 +71,6 @@ services:
     networks:
       net15:
         ipv4_address: 10.0.15.3
-
 networks:
   net14:
     ipam:
@@ -46,8 +82,23 @@ networks:
       driver: default
       config:
         - subnet: 10.0.15.0/24
-
-
-
-
-
+  net10:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.10.0/24
+  net11:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.11.0/24
+  net16:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.16.0/24
+  net17:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.17.0/24
