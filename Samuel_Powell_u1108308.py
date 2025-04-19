@@ -18,7 +18,7 @@ def build_env():
         subprocess.run(['sudo', 'docker', 'compose', 'up', '-d'], check=True)
 
         subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-ha-1', 'ip', 'route', 'add', '10.0.15.0/24', 'via', '10.0.14.4'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-hb-1', 'ip', 'route', 'add', '10.0.14.0/24', 'via', '10.0.15.3'], check=True)
+        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-hb-1', 'ip', 'route', 'add', '10.0.14.0/24', 'via', '10.0.15.4'], check=True)
 
     except subprocess.CalledProcessError as e:
         sys.exit(1)
