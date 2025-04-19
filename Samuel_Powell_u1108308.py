@@ -26,47 +26,43 @@ def build_env():
 def configure():
     for router, rid, networks, interfaces in routers:
         try:
-            install = """
-            apt-get update && \             
-            apt-get install -y curl gnupg lsb-release && \             
-            curl -s https://deb.frrouting.org/frr/keys.gpg | \             
-            gpg --dearmor > /usr/share/keyrings/frrouting.gpg && \             
-            echo "deb [signed-by=/usr/share/keyrings/frrouting.gpg] \             
-            https://deb.frrouting.org/frr $(lsb_release -s -c) frr-stable" | \             
-            tee /etc/apt/sources.list.d/frr.list && \             
-            apt-get update && \             
+            install_cmd= """
+            apt-get update && \
+            apt-get install -y curl gnupg lsb-release && \
+            curl -s https://deb.frrouting.org/frr/keys.gpg | \
+            gpg --dearmor > /usr/share/keyrings/frrouting.gpg && \
+            echo "deb [signed-by=/usr/share/keyrings/frrouting.gpg] \
+            https://deb.frrouting.org/frr $(lsb_release -s -c) frr-stable" | \
+            tee /etc/apt/sources.list.d/frr.list && \
+            apt-get update && \
             apt-get install -y frr frr-pythontools
             """
+            subprocess.run(['sudo', 'docker', 'exec', router, 'bash', '-c', install_cmd], check=True)
 
-            subprocess.run(['sudo', 'docker', 'exec', router, 'bash', '-c', install], check=True)
-
-            subprocess.run(['sudo', 'docker', 'exec', router, 'bash', '-c', 'sed -i "s/^ospfd=no/ospfd=yes/" /etc/frr/daemons'], check=True)
+            subprocess.run(['sudo', 'docker', 'exec', router, 'bash', '-c', 
+                          'sed -i "s/^ospfd=no/ospfd=yes/" /etc/frr/daemons'], check=True)
 
             subprocess.run(['sudo', 'docker', 'exec', router, 'service', 'frr', 'restart'], check=True)
-
-            vtysh = [
+            
+            commands = [
                 'sudo', 'docker', 'exec', router, 'vtysh',
                 '-c', 'configure terminal',
                 '-c', f'router ospf',
                 '-c', f'ospf router-id {rid}'
-                ]
-
+            ]
+            
             for network in networks:
-                vtysh.extend(['-c', f'network {network} area 0.0.0.0'])
-
+                commands.extend(['-c', f'network {network} area 0'])
+            
             for interface in interfaces:
-                vtysh.extend(['-c', f'interface {interface}', '-c', 'ip ospf cost 5'])
+                commands.extend(['-c', f'interface {interface}', '-c', 'ip ospf cost 10'])
+            
+            commands.extend(['-c', 'end'])
+            
+            subprocess.run(commands, check=True)
 
-            vtysh.extend(['-c', 'end'])
-
-            subprocess.run(vtysh, check=True)
-
-            subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r1-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-            subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth0', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-            subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-            subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
         except subprocess.CalledProcessError as e:
-           sys.exit(1)
+            sys.exit(1)
 
 def north():
     try:
@@ -108,12 +104,15 @@ def main():
     parser = argparse.ArgumentParser(description="Network Orchestrator")
     parser.add_argument("-n", action="store_true", help="North Path")
     parser.add_argument("-s", action="store_true", help="South Path")
+    parser.add_argument("-h", action="store_true", help="Help")
     args = parser.parse_args()
 
     if args.n:
         north()
     if args.s:
         south()
+    if args.h:
+        print("Use with no commands to create environment. Use with -n to use north path or -s to use south path")
     else:
         build_env()
         configure()
