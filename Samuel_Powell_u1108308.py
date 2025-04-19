@@ -45,8 +45,10 @@ def configure():
             subprocess.run(['sudo', 'docker', 'exec', router, 'service', 'frr', 'restart'], check=True)
 
             vtysh = [
-                'sudo', 'docker', 'exec', router, 'vtsyh', '-c', 'config', f'router ospf', '-c',
-                f'router router-id {rid}'
+                'sudo', 'docker', 'exec', router, 'vtysh',
+                '-c', 'configure terminal',
+                '-c', f'router ospf',
+                '-c', f'ospf router-id {rid}'
                 ]
 
             for network in networks:
@@ -57,13 +59,13 @@ def configure():
 
             vtysh.extend(['-c', 'end'])
 
-            subprocess.run(vtsyh, check=True)
+            subprocess.run(vtysh, check=True)
 
-         subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r1-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-         subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth0', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-         subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-         subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-       except subprocess.CalledProcessError as e:
+            subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r1-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
+            subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth0', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
+            subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
+            subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
+        except subprocess.CalledProcessError as e:
            sys.exit(1)
 
 def north():
@@ -78,7 +80,9 @@ def north():
         subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r4-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 100', '-c', 'end'], check=True)
         subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r3-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 100', '-c', 'end'], check=True)
 
-     except subprocess.CalledProcessError as e:
+        print("North Path")
+
+    except subprocess.CalledProcessError as e:
         sys.exit(1)
 
 def south():
@@ -93,7 +97,9 @@ def south():
         subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r4-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
         subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r3-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
 
-     except subprocess.CalledProcessError as e:
+        print("South Path")
+
+    except subprocess.CalledProcessError as e:
         sys.exit(1)
 
 
