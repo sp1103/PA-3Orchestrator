@@ -98,7 +98,7 @@ def main():
     if args.north:
         set_path("north")
         print("Using north path")
-    if args.south:
+    elif args.south:
         set_path("south")
         print("Using south path")
     else:
