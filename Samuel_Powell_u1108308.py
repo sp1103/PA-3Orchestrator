@@ -64,55 +64,30 @@ def configure():
         except subprocess.CalledProcessError as e:
             sys.exit(1)
 
-def north():
+def set_path(direction):
     try:
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r1-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth0', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r1-1', 'vtysh', '-c', 'conf t', '-c', 'int eth2', '-c', 'ip ospf cost 100', '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r4-1', 'vtysh', '-c', 'conf t', '-c', 'int eth0', '-c', 'ip ospf cost 100', '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r4-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 100', '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r3-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 100', '-c', 'end'], check=True)
-
-        print("North Path")
+        if direction == "north":
+            subprocess.run("docker exec r1 vtysh -c 'configure terminal' -c 'interface eth1' -c 'ip ospf cost 5' -c 'exit' -c 'interface eth2' -c 'ip ospf cost 100' -c 'write memory'")
+            subprocess.run("docker exec r3 vtysh -c 'configure terminal' -c 'interface eth1' -c 'ip ospf cost 5' -c 'exit' -c 'interface eth0' -c 'ip ospf cost 100' -c 'write memory'")
+        elif direction == "south":
+            subprocess.run("docker exec r1 vtysh -c 'configure terminal' -c 'interface eth1' -c 'ip ospf cost 100' -c 'exit' -c 'interface eth2' -c 'ip ospf cost 5' -c 'write memory'")
+            subprocess.run("docker exec r3 vtysh -c 'configure terminal' -c 'interface eth1' -c 'ip ospf cost 100' -c 'exit' -c 'interface eth0' -c 'ip ospf cost 5' -c 'write memory'")
 
     except subprocess.CalledProcessError as e:
         sys.exit(1)
-
-def south():
-    try:
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r1-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 100', '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth0', '-c', 'ip ospf cost 100', '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 100', '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 100', '-c', 'end'], check=True)
-
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r1-1', 'vtysh', '-c', 'conf t', '-c', 'int eth2', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r4-1', 'vtysh', '-c', 'conf t', '-c', 'int eth0', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r4-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r3-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', 'ip ospf cost 5', '-c', 'end'], check=True)
-
-        print("South Path")
-
-    except subprocess.CalledProcessError as e:
-        sys.exit(1)
-
-
 
 def main():
     parser = argparse.ArgumentParser(description="Network Orchestrator")
-    parser.add_argument("-n", action="store_true", help="North Path")
-    parser.add_argument("-s", action="store_true", help="South Path")
-    parser.add_argument("-h", action="store_true", help="Help")
+    parser.add_argument("-north", action="store_true", help="North Path")
+    parser.add_argument("-south", action="store_true", help="South Path")
     args = parser.parse_args()
 
-    if args.n:
-        north()
-    if args.s:
-        south()
-    if args.h:
-        print("Use with no commands to create environment. Use with -n to use north path or -s to use south path")
+    if args.north:
+        set_path("north")
+        print("Using north path")
+    if args.south:
+        set_path("south")
+        print("Using south path")
     else:
         build_env()
         configure()
