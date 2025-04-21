@@ -84,9 +84,9 @@ def set_path(direction):
         subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', f'ip ospf cost {northCost}', '-c', 'end'], check=True)
 
         subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r1-1', 'vtysh', '-c', 'conf t', '-c', 'int eth2', '-c', f'ip ospf cost {southCost}', '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r4-1', 'vtysh', '-c', 'conf t', '-c', 'int eth0', '-c', f'ip ospf cost {southCost}, '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r4-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', f'ip ospf cost {southCost}, '-c', 'end'], check=True)
-        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r3-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', f'ip ospf cost {southCost}, '-c', 'end'], check=True)
+        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r4-1', 'vtysh', '-c', 'conf t', '-c', 'int eth0', '-c', f'ip ospf cost {southCost}', '-c', 'end'], check=True)
+        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r4-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', f'ip ospf cost {southCost}', '-c', 'end'], check=True)
+        subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r3-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', f'ip ospf cost {southCost}', '-c', 'end'], check=True)
 
     except subprocess.CalledProcessError as e:
         sys.exit(1)
