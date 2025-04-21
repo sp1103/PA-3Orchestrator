@@ -69,14 +69,12 @@ def set_path(direction):
     southCost = 0
     
     try:
-        if (direction == "north") {
+        if (direction == "north"):
             northCost = 5
             southCost = 100
-        }
-        elif (direction == "south") {
+        elif (direction == "south"):
             northCost = 100
             southCost = 5
-        }
             
         subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r1-1', 'vtysh', '-c', 'conf t', '-c', 'int eth1', '-c', f'ip ospf cost {northCost}', '-c', 'end'], check=True)
         subprocess.run(['sudo', 'docker', 'exec', 'pa-3orchestrator-r2-1', 'vtysh', '-c', 'conf t', '-c', 'int eth0', '-c', f'ip ospf cost {northCost}', '-c', 'end'], check=True)
